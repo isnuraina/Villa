@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using System.Threading.Tasks;
 using Villa.Business.Abstract;
 using Villa.Dto.Dto.BannerDtos;
+using Villa.Entity.Entities;
 
 namespace Villa.WebUI.Controllers
 {
@@ -19,9 +21,25 @@ namespace Villa.WebUI.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var values=await _bannerService.TGetListAsync();
-            var bannerList=_mapper.Map<List<ResultBannerDto>>(values);
+            var values = await _bannerService.TGetListAsync();
+            var bannerList = _mapper.Map<List<ResultBannerDto>>(values);
             return View(bannerList);
+        }
+        public async Task<IActionResult> DeleteBanner(ObjectId id)
+        {
+            await _bannerService.TDeleteAsync(id);
+            return RedirectToAction("Index");
+        }
+        public IActionResult CreateBanner()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> CreateBanner(CreateBannerDto createBannerDto)
+        {
+            var newBanner= _mapper.Map<Banner>(createBannerDto);
+            await _bannerService.TCreateAsync(newBanner);
+            return RedirectToAction("Index");
         }
     }
 }
